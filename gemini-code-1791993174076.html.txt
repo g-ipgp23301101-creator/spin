@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SPIN THE WHEEL: MISI REFLEKSI KHAIRUL AMIR</title>
+    <style>
+        /* ==========================================
+           1. RESET & BASE STYLES
+           ========================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background-color: #030a1c;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Ambient Stars & Glow Particles */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle at 20% 20%, rgba(0, 180, 216, 0.15), transparent 40%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 208, 0, 0.12), transparent 40%),
+                        radial-gradient(circle at 50% 50%, rgba(3, 10, 28, 1), rgba(1, 4, 12, 1));
+        }
+
+        /* Top Audio Controls Bar */
+        .audio-controls {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            background: rgba(3, 15, 38, 0.85);
+            padding: 10px 16px;
+            border-radius: 50px;
+            border: 2px solid rgba(0, 229, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+            backdrop-filter: blur(8px);
+            align-items: center;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            border-color: #00e5ff;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        }
+
+        .volume-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-left: 6px;
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .volume-slider {
+            width: 70px;
+            accent-color: #ffd000;
+            cursor: pointer;
+        }
+
+        /* Screen Container Management */
+        .screen {
+            width: 100%;
+            max-width: 1100px;
+            min-height: 100vh;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            position: relative;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Custom Typography & Glowing Titles */
+        .game-title {
+            font-size: clamp(2rem, 5vw, 3.8rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff, 0 0 30px #0077b6;
+            margin-bottom: 5px;
+            line-height: 1.1;
+        }
+
+        .game-subtitle {
+            font-size: clamp(1.1rem, 2.8vw, 1.8rem);
+            font-weight: 700;
+            color: #ffd000;
+            text-shadow: 0 0 10px rgba(255, 208, 0, 0.6);
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        /* Decorative Chili & Sambal Branding */
+        .branding-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(217, 4, 41, 0.25), rgba(112, 0, 18, 0.4));
+            border: 2px solid #ff4d6d;
+            padding: 8px 22px;
+            border-radius: 30px;
+            box-shadow: 0 0 15px rgba(255, 77, 109, 0.4);
+            margin-bottom: 18px;
+        }
+
+        .branding-text {
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: 1.5px;
+        }
+
+        /* Action Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd000, #ff9100);
+            color: #030a1c;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: 900;
+            padding: 18px 45px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 208, 0, 0.6), 0 6px 0 #c77000;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 15px;
+            touch-action: manipulation;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(255, 208, 0, 0.9), 0 8px 0 #c77000;
+        }
+
+        .btn-primary:active {
+            transform: translateY(3px);
+            box-shadow: 0 0 10px rgba(255, 208, 0, 0.6), 0 2px 0 #c77000;
+        }
+
+        /* ==========================================
+           2. INSTRUCTION SCREEN
+           ========================================== */
+        .instruction-card {
+            background: rgba(8, 28, 64, 0.85);
+            border: 2px solid #00e5ff;
+            border-radius: 24px;
+            padding: clamp(20px, 4vw, 40px);
+            max-width: 780px;
+            box-shadow: 0 0 35px rgba(0, 229, 255, 0.3), inset 0 0 20px rgba(0, 229, 255, 0.1);
+            backdrop-filter: blur(12px);
+            margin-bottom: 25px;
+        }
+
+        .main-instruction {
+            font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+            color: #ffffff;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            text-align: left;
+            margin-top: 15px;
+        }
+
+        .rule-item {
+            background: rgba(0, 180, 216, 0.15);
+            border-left: 4px solid #ffd000;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e0f7fa;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* ==========================================
+           3. MAIN GAMEPLAY SCREEN (WHEEL)
+           ========================================== */
+        .game-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            width: clamp(300px, 72vw, 460px);
+            height: clamp(300px, 72vw, 460px);
+            margin: 10px auto;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 36px solid #ff4d6d;
+            z-index: 10;
+            filter: drop-shadow(0 0 10px #ff4d6d);
+        }
+
+        .wheel-canvas-container {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.5), 0 0 80px rgba(0, 119, 182, 0.3);
+            border: 8px solid #00e5ff;
+            position: relative;
+            overflow: hidden;
+            background: #030a1c;
+        }
+
+        #wheelCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Remaining Questions Tracker */
+        .tracker-badge {
+            background: rgba(0, 180, 216, 0.2);
+            border: 1px solid #00e5ff;
+            color: #ffd000;
+            font-size: 1.1rem;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+            margin-bottom: 5px;
+        }
+
+        /* ==========================================
+           4. QUESTION DISPLAY MODAL / CARD
+           ========================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(1, 4, 12, 0.88);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .question-card {
+            background: linear-gradient(145deg, #061838, #030a1c);
+            border: 3px solid #ffd000;
+            border-radius: 28px;
+            padding: clamp(25px, 5vw, 45px);
+            width: 100%;
+            max-width: 850px;
+            box-shadow: 0 0 50px rgba(255, 208, 0, 0.5), inset 0 0 25px rgba(255, 208, 0, 0.15);
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .question-card {
+            transform: scale(1);
+        }
+
+        .question-header-tag {
+            display: inline-block;
+            background: #ffd000;
+            color: #030a1c;
+            font-weight: 900;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            padding: 6px 20px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .question-body {
+            font-size: clamp(1.5rem, 3.8vw, 2.5rem);
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.4;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .classroom-prompt {
+            background: rgba(255, 77, 109, 0.2);
+            border: 2px dashed #ff4d6d;
+            color: #ff85a1;
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            font-weight: 800;
+            padding: 14px 24px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            animation: pulsePrompt 2s infinite;
+        }
+
+        @keyframes pulsePrompt {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(0.99); }
+        }
+
+        /* ==========================================
+           5. END SCREEN (VICTORY)
+           ========================================== */
+        .victory-card {
+            background: rgba(8, 28, 64, 0.9);
+            border: 3px solid #ffd000;
+            border-radius: 30px;
+            padding: clamp(30px, 5vw, 50px);
+            max-width: 750px;
+            box-shadow: 0 0 60px rgba(255, 208, 0, 0.6);
+            backdrop-filter: blur(12px);
+        }
+
+        .victory-title {
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            color: #ffd000;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 208, 0, 0.8);
+        }
+
+        .victory-message {
+            font-size: clamp(1.2rem, 2.8vw, 1.8rem);
+            color: #ffffff;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        /* SVG Bottle Container */
+        .jar-container {
+            width: 110px;
+            height: 140px;
+            margin: 0 auto 20px auto;
+            filter: drop-shadow(0 0 15px rgba(255, 77, 109, 0.6));
+        }
+
+        /* Canvas Particle Effect Overlay */
+        #effectsCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 300;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BACKGROUND STARS CANVAS -->
+    <div id="starfield"></div>
+
+    <!-- AUDIO CONTROLS BAR -->
+    <div class="audio-controls">
+        <button id="bgmToggleBtn" class="control-btn active" onclick="toggleBGM()">
+            <span>🎵 MUZIK: ON</span>
+        </button>
+        <button id="sfxToggleBtn" class="control-btn active" onclick="toggleSFX()">
+            <span>🔔 SFX: ON</span>
+        </button>
+        <div class="volume-slider-container">
+            <span style="font-size: 12px; color: #a0c4ff;">🔊</span>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="0.7" oninput="adjustVolume(this.value)">
+        </div>
+    </div>
+
+    <!-- AUDIO EFFECTS CANVAS -->
+    <canvas id="effectsCanvas"></canvas>
+
+    <!-- ==========================================
+         SCREEN 1: INSTRUCTION SCREEN
+         ========================================== -->
+    <div id="instructionScreen" class="screen active">
+        
+        <!-- SVG Sambal Bottle Illustration -->
+        <div class="jar-container">
+            <svg viewBox="0 0 100 130" width="100%" height="100%">
+                <!-- Lid -->
+                <rect x="25" y="10" width="50" height="15" rx="3" fill="#d90429" stroke="#ff4d6d" stroke-width="2"/>
+                <rect x="20" y="22" width="60" height="8" rx="2" fill="#ef233c"/>
+                <!-- Jar Glass Body -->
+                <path d="M22 30 L78 30 Q85 30 85 40 L85 110 Q85 120 75 120 L25 120 Q15 120 15 110 L15 40 Q15 30 22 30 Z" fill="rgba(255, 255, 255, 0.15)" stroke="#00e5ff" stroke-width="3"/>
+                <!-- Sambal Content -->
+                <path d="M18 45 L82 45 L82 108 Q82 117 73 117 L27 117 Q18 117 18 108 Z" fill="#9e2a2b"/>
+                <!-- Chili Seeds Inside Jar -->
+                <circle cx="35" cy="65" r="3" fill="#ffd000"/>
+                <circle cx="55" cy="85" r="3" fill="#ffd000"/>
+                <circle cx="65" cy="60" r="3" fill="#ffd000"/>
+                <circle cx="40" cy="95" r="3" fill="#ffd000"/>
+                <!-- Label -->
+                <rect x="22" y="60" width="56" height="36" rx="4" fill="#ffd000" stroke="#030a1c" stroke-width="2"/>
+                <text x="50" y="75" font-family="Arial" font-size="8" font-weight="900" fill="#030a1c" text-anchor="middle">SAMBAL</text>
+                <text x="50" y="87" font-family="Arial" font-size="8" font-weight="900" fill="#d90429" text-anchor="middle">MALAYSIA</text>
+            </svg>
+        </div>
+
+        <div class="branding-badge">
+            <span style="font-size: 1.3rem;">🌶️</span>
+            <span class="branding-text">UNIT 22: USAHAWAN BERWAWASAN</span>
+        </div>
+
+        <h1 class="game-title">SPIN THE WHEEL</h1>
+        <h2 class="game-subtitle">MISI REFLEKSI KHAIRUL AMIR</h2>
+
+        <div class="instruction-card">
+            <p class="main-instruction">
+                Wakil dipilih untuk memutarkan roda dan semua murid perlu menjawab secara serentak.
+            </p>
+            <div class="rules-grid">
+                <div class="rule-item">
+                    <span>🎯</span>
+                    <span>Bersedia untuk menjawab!</span>
+                </div>
+                <div class="rule-item">
+                    <span>👂</span>
+                    <span>Dengar soalan dengan teliti!</span>
+                </div>
+                <div class="rule-item">
+                    <span>🗣️</span>
+                    <span>Semua murid mesti mengambil bahagian!</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="startGame()">🚀 MULAKAN MISI</button>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 2: MAIN GAMEPLAY SCREEN
+         ========================================== -->
+    <div id="gameScreen" class="screen">
+        <div class="game-layout">
+            <div class="branding-badge" style="margin-bottom: 5px;">
+                <span style="font-size: 1.1rem;">🌶️</span>
+                <span class="branding-text">MISI REFLEKSI KHAIRUL AMIR</span>
+            </div>
+
+            <div class="tracker-badge" id="trackerBadge">
+                SOALAN BERBAKI: 4 / 4
+            </div>
+
+            <div class="wheel-wrapper">
+                <div class="wheel-pointer"></div>
+                <div class="wheel-canvas-container">
+                    <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                </div>
+            </div>
+
+            <button id="spinBtn" class="btn-primary" onclick="spinWheel()">🎡 PUTAR RODA</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         QUESTION MODAL DISPLAY
+         ========================================== -->
+    <div id="questionModal" class="modal-overlay">
+        <div class="question-card">
+            <div class="question-header-tag" id="questionNumberTag">SOALAN REFLEKSI</div>
+            <div class="question-body" id="questionText">
+                "Apakah yang kamu pelajari pada hari ini?"
+            </div>
+            
+            <div class="classroom-prompt">
+                <span>🗣️</span>
+                <span>SEMUA MURID, JAWAB SECARA SERENTAK!</span>
+            </div>
+
+            <button class="btn-primary" onclick="nextQuestion()">🎡 SOALAN SETERUSNYA</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 3: END / VICTORY SCREEN
+         ========================================== -->
+    <div id="endScreen" class="screen">
+        <div class="victory-card">
+            <div class="jar-container" style="width: 130px; height: 160px;">
+                <svg viewBox="0 0 100 130" width="100%" height="100%">
+                    <rect x="25" y="10" width="50" height="15" rx="3" fill="#d90429" stroke="#ff4d6d" stroke-width="2"/>
+                    <rect x="20" y="22" width="60" height="8" rx="2" fill="#ef233c"/>
+                    <path d="M22 30 L78 30 Q85 30 85 40 L85 110 Q85 120 75 120 L25 120 Q15 120 15 110 L15 40 Q15 30 22 30 Z" fill="rgba(255, 255, 255, 0.15)" stroke="#00e5ff" stroke-width="3"/>
+                    <path d="M18 45 L82 45 L82 108 Q82 117 73 117 L27 117 Q18 117 18 108 Z" fill="#9e2a2b"/>
+                    <circle cx="35" cy="65" r="3" fill="#ffd000"/>
+                    <circle cx="55" cy="85" r="3" fill="#ffd000"/>
+                    <rect x="22" y="60" width="56" height="36" rx="4" fill="#ffd000" stroke="#030a1c" stroke-width="2"/>
+                    <text x="50" y="75" font-family="Arial" font-size="8" font-weight="900" fill="#030a1c" text-anchor="middle">SAMBAL</text>
+                    <text x="50" y="87" font-family="Arial" font-size="8" font-weight="900" fill="#d90429" text-anchor="middle">MALAYSIA</text>
+                </svg>
+            </div>
+
+            <h1 class="victory-title">🏆 TAHNIAH, PASUKAN USAHAWAN! 🏆</h1>
+            <p class="victory-message">
+                Kamu telah berjaya menyelesaikan Misi Refleksi Khairul Amir!
+            </p>
+
+            <button class="btn-primary" onclick="resetGame()">🔄 MAIN SEMULA</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JAVASCRIPT LOGIC & SYNTHESIZER
+         ========================================== -->
+    <script>
+        /* ==========================================
+           1. MASTER QUESTION DATA
+           ========================================== */
+        const MASTER_QUESTIONS = [
+            { id: 1, text: "Apakah yang kamu pelajari pada hari ini?" },
+            { id: 2, text: "Apakah ciri-ciri usahawan yang kamu pelajari pada hari ini?" },
+            { id: 3, text: "Mengapakah seseorang usahawan perlu berusaha bersungguh-sungguh untuk memajukan perniagaannya?" },
+            { id: 4, text: "Apakah maklumat tentang usahawan yang kamu pelajari daripada petikan yang dibaca?" }
+        ];
+
+        // Active State Variables
+        let activeQuestions = [...MASTER_QUESTIONS];
+        let currentQuestion = null;
+        let isSpinning = false;
+        let currentRotation = 0; // In Radians
+
+        // Canvas & Audio References
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const effectsCanvas = document.getElementById('effectsCanvas');
+        const effectsCtx = effectsCanvas.getContext('2d');
+
+        /* ==========================================
+           2. WEB AUDIO API SYNTHESIZER (NO EXTERNAL AUDIO)
+           ========================================== */
+        let audioCtx = null;
+        let bgmNode = null;
+        let bgmGain = null;
+        let masterGain = null;
+        let isBGMOn = true;
+        let isSFXOn = true;
+        let masterVolume = 0.7;
+        let bgmInterval = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = masterVolume;
+                masterGain.connect(audioCtx.destination);
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function adjustVolume(val) {
+            masterVolume = parseFloat(val);
+            if (masterGain) {
+                masterGain.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
+            }
+        }
+
+        function toggleBGM() {
+            isBGMOn = !isBGMOn;
+            const btn = document.getElementById('bgmToggleBtn');
+            if (isBGMOn) {
+                btn.classList.add('active');
+                btn.innerHTML = '<span>🎵 MUZIK: ON</span>';
+                startBGM();
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<span>🎵 MUZIK: OFF</span>';
+                stopBGM();
+            }
+        }
+
+        function toggleSFX() {
+            isSFXOn = !isSFXOn;
+            const btn = document.getElementById('sfxToggleBtn');
+            if (isSFXOn) {
+                btn.classList.add('active');
+                btn.innerHTML = '<span>🔔 SFX: ON</span>';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<span>🔔 SFX: OFF</span>';
+            }
+        }
+
+        // Play Synthesized Short Tone
+        function playTone(freq, type = 'sine', duration = 0.1, volume = 0.3) {
+            if (!isSFXOn || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(masterGain);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        // Sound Effect: Button Click
+        function playBtnClickSFX() {
+            playTone(600, 'sine', 0.08, 0.25);
+        }
+
+        // Sound Effect: Start Game
+        function playStartSFX() {
+            if (!isSFXOn || !audioCtx) return;
+            const now = audioCtx.currentTime;
+            [300, 400, 500, 600, 800].forEach((freq, idx) => {
+                setTimeout(() => playTone(freq, 'triangle', 0.12, 0.3), idx * 70);
+            });
+        }
+
+        // Sound Effect: Wheel Tick
+        function playTickSFX() {
+            playTone(800, 'triangle', 0.03, 0.15);
+        }
+
+        // Sound Effect: Wheel Stop / Fanfare
+        function playVictorySFX() {
+            if (!isSFXOn || !audioCtx) return;
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+            notes.forEach((freq, idx) => {
+                setTimeout(() => playTone(freq, 'sine', 0.25, 0.4), idx * 120);
+            });
+        }
+
+        // Sound Effect: Final Game Complete Fanfare
+        function playGameCompleteSFX() {
+            if (!isSFXOn || !audioCtx) return;
+            const melody = [
+                { f: 523.25, d: 0.15 }, { f: 659.25, d: 0.15 }, { f: 783.99, d: 0.15 },
+                { f: 1046.50, d: 0.4 }, { f: 880.00, d: 0.2 }, { f: 1046.50, d: 0.6 }
+            ];
+            let delay = 0;
+            melody.forEach(item => {
+                setTimeout(() => playTone(item.f, 'triangle', item.d, 0.4), delay);
+                delay += item.d * 1000 + 30;
+            });
+        }
+
+        // Background Music Loop Synthesizer (Instrumental Synth Arpeggio)
+        function startBGM() {
+            if (!isBGMOn || !audioCtx || bgmInterval) return;
+            
+            const bgmNotes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; // C Major pattern
+            let step = 0;
+
+            bgmInterval = setInterval(() => {
+                if (!isBGMOn || !audioCtx) return;
+                try {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(bgmNotes[step % bgmNotes.length], audioCtx.currentTime);
+                    
+                    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
+                    
+                    osc.connect(gain);
+                    gain.connect(masterGain);
+                    
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.22);
+                    
+                    step++;
+                } catch (e) {}
+            }, 260);
+        }
+
+        function stopBGM() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            }
+        }
+
+        function setBGMVolume(level) {
+            // Lower music slightly during spinning if needed
+        }
+
+        /* ==========================================
+           3. CANVAS WHEEL RENDERING ENGINE
+           ========================================== */
+        const SLICE_COLORS = [
+            { bg: '#00b4d8', text: '#ffffff', accent: '#0077b6' }, // Electric Blue
+            { bg: '#ffd000', text: '#030a1c', accent: '#ff9100' }, // Bright Yellow
+            { bg: '#0077b6', text: '#ffffff', accent: '#030a1c' }, // Darker Blue
+            { bg: '#ffb703', text: '#030a1c', accent: '#d90429' }  // Warm Yellow
+        ];
+
+        function drawWheel() {
+            const numSlices = activeQuestions.length;
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = width / 2 - 15;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if (numSlices === 0) return;
+
+            const sliceAngle = (Math.PI * 2) / numSlices;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(currentRotation);
+
+            for (let i = 0; i < numSlices; i++) {
+                const angleStart = i * sliceAngle;
+                const angleEnd = angleStart + sliceAngle;
+                const colorScheme = SLICE_COLORS[i % SLICE_COLORS.length];
+
+                // Slice Arc
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, angleStart, angleEnd);
+                ctx.closePath();
+                ctx.fillStyle = colorScheme.bg;
+                ctx.fill();
+
+                // Slice Inner Border Line
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#030a1c';
+                ctx.stroke();
+
+                // Slice Text (Label / Question Number)
+                ctx.save();
+                ctx.rotate(angleStart + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = colorScheme.text;
+                ctx.font = '900 22px Arial, sans-serif';
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 4;
+
+                const label = `SOALAN ${activeQuestions[i].id}`;
+                ctx.fillText(label, radius - 35, 8);
+                ctx.restore();
+            }
+
+            // Center Knob Design
+            ctx.beginPath();
+            ctx.arc(0, 0, 55, 0, Math.PI * 2);
+            ctx.fillStyle = '#030a1c';
+            ctx.fill();
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = '#ffd000';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(0, 0, 42, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffd000';
+            ctx.fill();
+
+            // Center Knob Text
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#030a1c';
+            ctx.font = '900 20px Arial, sans-serif';
+            ctx.fillText('SPIN!', 0, 0);
+
+            ctx.restore();
+        }
+
+        /* ==========================================
+           4. WHEEL SPINNING MATH & LOGIC
+           ========================================== */
+        function spinWheel() {
+            if (isSpinning || activeQuestions.length === 0) return;
+
+            initAudio();
+            playBtnClickSFX();
+
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('spinBtn').style.opacity = '0.5';
+
+            const numSlices = activeQuestions.length;
+            const sliceAngle = (Math.PI * 2) / numSlices;
+
+            // Pick a random question index from active list
+            const selectedIndex = Math.floor(Math.random() * numSlices);
+            currentQuestion = activeQuestions[selectedIndex];
+
+            // Math to align top pointer (3PI/2 rad) with chosen slice center
+            const targetSliceCenterAngle = selectedIndex * sliceAngle + sliceAngle / 2;
+            let targetRotation = (Math.PI * 3 / 2) - targetSliceCenterAngle;
+
+            // Normalize & add multiple full rotations (5 to 7 turns)
+            while (targetRotation < currentRotation) {
+                targetRotation += Math.PI * 2;
+            }
+            const extraRotations = (Math.floor(Math.random() * 2) + 5) * (Math.PI * 2);
+            targetRotation += extraRotations;
+
+            // Animation variables
+            const startTime = performance.now();
+            const duration = 4500; // 4.5 seconds spin
+            const startRotation = currentRotation;
+            let lastTickIndex = -1;
+
+            function animateSpin(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Cubic Ease-Out curve for smooth deceleration
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+
+                drawWheel();
+
+                // Sound Effect Tick on slice boundary pass
+                const currentNormalized = (currentRotation % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+                const currentTickIndex = Math.floor(currentNormalized / sliceAngle);
+                if (currentTickIndex !== lastTickIndex) {
+                    playTickSFX();
+                    lastTickIndex = currentTickIndex;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    // Spin finished
+                    isSpinning = false;
+                    currentRotation = currentRotation % (Math.PI * 2);
+                    drawWheel();
+                    playVictorySFX();
+                    triggerSparkles();
+
+                    setTimeout(() => {
+                        showQuestionModal(currentQuestion);
+                    }, 500);
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        /* ==========================================
+           5. QUESTION & MODAL MANAGEMENT
+           ========================================== */
+        function showQuestionModal(q) {
+            document.getElementById('questionNumberTag').innerText = `SOALAN REFLEKSI ${q.id}`;
+            document.getElementById('questionText').innerText = `"${q.text}"`;
+            
+            const modal = document.getElementById('questionModal');
+            modal.classList.add('active');
+        }
+
+        function nextQuestion() {
+            playBtnClickSFX();
+            const modal = document.getElementById('questionModal');
+            modal.classList.remove('active');
+
+            // REMOVE QUESTION FROM ACTIVE LIST (CRITICAL REQUIREMENT)
+            activeQuestions = activeQuestions.filter(q => q.id !== currentQuestion.id);
+
+            // Update Remaining Question Tracker
+            document.getElementById('trackerBadge').innerText = `SOALAN BERBAKI: ${activeQuestions.length} / ${MASTER_QUESTIONS.length}`;
+
+            // Re-render updated wheel without removed slice
+            drawWheel();
+
+            // Check if game completed
+            if (activeQuestions.length === 0) {
+                setTimeout(() => {
+                    showEndScreen();
+                }, 400);
+            } else {
+                document.getElementById('spinBtn').disabled = false;
+                document.getElementById('spinBtn').style.opacity = '1';
+            }
+        }
+
+        /* ==========================================
+           6. SCREEN SWITCHING & GAME FLOW
+           ========================================== */
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startGame() {
+            initAudio();
+            playStartSFX();
+            startBGM();
+            switchScreen('gameScreen');
+            drawWheel();
+        }
+
+        function showEndScreen() {
+            stopBGM();
+            playGameCompleteSFX();
+            switchScreen('endScreen');
+            startConfetti();
+        }
+
+        function resetGame() {
+            playBtnClickSFX();
+            activeQuestions = [...MASTER_QUESTIONS];
+            currentRotation = 0;
+            isSpinning = false;
+
+            document.getElementById('spinBtn').disabled = false;
+            document.getElementById('spinBtn').style.opacity = '1';
+            document.getElementById('trackerBadge').innerText = `SOALAN BERBAKI: ${activeQuestions.length} / ${MASTER_QUESTIONS.length}`;
+
+            stopConfetti();
+            switchScreen('gameScreen');
+            drawWheel();
+            startBGM();
+        }
+
+        /* ==========================================
+           7. VISUAL EFFECTS (SPARKLES & CONFETTI)
+           ========================================== */
+        let particles = [];
+        let animationFrameId = null;
+
+        function resizeEffectsCanvas() {
+            effectsCanvas.width = window.innerWidth;
+            effectsCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeEffectsCanvas);
+        resizeEffectsCanvas();
+
+        function triggerSparkles() {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: centerX,
+                    y: centerY,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12,
+                    size: Math.random() * 6 + 3,
+                    color: ['#ffd000', '#00e5ff', '#ff4d6d', '#ffffff'][Math.floor(Math.random() * 4)],
+                    alpha: 1,
+                    decay: Math.random() * 0.03 + 0.015
+                });
+            }
+            if (!animationFrameId) updateEffects();
+        }
+
+        function startConfetti() {
+            particles = [];
+            for (let i = 0; i < 90; i++) {
+                particles.push({
+                    x: Math.random() * effectsCanvas.width,
+                    y: Math.random() * effectsCanvas.height - effectsCanvas.height,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: Math.random() * 4 + 3,
+                    size: Math.random() * 8 + 5,
+                    color: ['#ffd000', '#00e5ff', '#ff4d6d', '#0077b6', '#ffffff'][Math.floor(Math.random() * 5)],
+                    alpha: 1,
+                    decay: 0
+                });
+            }
+            if (!animationFrameId) updateEffects();
+        }
+
+        function stopConfetti() {
+            particles = [];
+        }
+
+        function updateEffects() {
+            effectsCtx.clearRect(0, 0, effectsCanvas.width, effectsCanvas.height);
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.decay > 0) {
+                    p.alpha -= p.decay;
+                } else {
+                    // Wrap confetti around bottom
+                    if (p.y > effectsCanvas.height) p.y = -20;
+                }
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                effectsCtx.save();
+                effectsCtx.globalAlpha = p.alpha;
+                effectsCtx.fillStyle = p.color;
+                effectsCtx.beginPath();
+                effectsCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                effectsCtx.fill();
+                effectsCtx.restore();
+            }
+
+            if (particles.length > 0) {
+                animationFrameId = requestAnimationFrame(updateEffects);
+            } else {
+                animationFrameId = null;
+            }
+        }
+
+        // Initial Canvas Render on Load
+        drawWheel();
+    </script>
+</body>
+</html>
